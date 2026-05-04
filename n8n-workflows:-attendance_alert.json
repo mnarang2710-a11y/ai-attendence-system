@@ -1,0 +1,695 @@
+{
+  "name": "attendence automation system",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "attendence",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "d391e3f8-aaa3-4acc-9205-00ccaa648307",
+      "name": "Webhook",
+      "webhookId": "004fc704-0867-4527-a9cc-75b7047a0ed3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d84c3cf-174d-4b40-b5b4-5db789245b6e",
+              "name": "name",
+              "value": "={{ $('Append row in sheet').item.json['student name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4c1f2a17-ae80-4d7f-a7fe-1c9683c239ee",
+              "name": "status",
+              "value": "={{ $('Append row in sheet').item.json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "38b56119-8df4-44f4-9323-dcc73ec60c69",
+              "name": "time",
+              "value": "={{ $('Append row in sheet').item.json.Time }}",
+              "type": "string"
+            },
+            {
+              "id": "9a4992d9-86a6-449f-b40c-124b57170d8d",
+              "name": "Date",
+              "value": "={{ $('Append row in sheet').item.json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "0c837b3a-131a-4938-a830-b5e22d2943a3",
+              "name": "email",
+              "value": "={{ $('Append row in sheet').item.json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "7da9dd17-0ce8-44e1-9a26-6109242bf135",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "970c138c-c84a-40e0-a3b8-a4f65bcfe24d",
+              "leftValue": "={{ $json.time }}",
+              "rightValue": " your preffered time here, e.g. 09:15:00",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        -16
+      ],
+      "id": "7776d731-53a7-4c99-a03d-7023cea95f7c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42a1fecd-a7a6-4ce5-bfc3-a94f2c639786",
+              "name": "message",
+              "value": "\"⚠️ \" + $json[\"name\"] + \" is LATE at \" + $json[\"time\"]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        -160
+      ],
+      "id": "600b730c-dc97-4a60-9f50-63b01789e42b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6bfae46f-f922-44a5-91a3-245313ec3bef",
+              "name": "message ",
+              "value": "\"✅ \" + $json[\"name\"] + \" is PRESENT at \" + $json[\"time\"]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        112
+      ],
+      "id": "80a8dfd2-6648-4854-85e8-ad546e87f0d2",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "sendTo": "abc123@gmail.com",
+        "subject": "⚠️ Attendance Marked — Late",
+        "emailType": "text",
+        "message": "=Dear {{ $('Append row in sheet').item.json['student name'] }},\n\n            You have been marked LATE on \n           {{ $('Append row in sheet').item.json.Date }}\n\n            Your arrival time: {{ $('Append row in sheet').item.json.Time }}\n            Class start time: 09:15 AM\n\n            If you think this is wrong, reply to this email.\n\n            Regards,\n            Attendance System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        -176
+      ],
+      "id": "22b143b0-19e0-4872-8715-32deef546764",
+      "name": "Send a message",
+      "webhookId": "8831ac2c-0aeb-47e8-b845-669dc313e49b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "your credentials id",
+          "name": "Add your Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Attendance processed successfully\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2432,
+        -64
+      ],
+      "id": "54735066-2f81-4ae0-95de-c6cc71dd7cd5",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "abc123@gmail.com",
+        "subject": "✅ Attendance Marked — Present",
+        "emailType": "text",
+        "message": "=Dear {{ $('Append row in sheet').item.json['student name'] }}\n\n            Your attendance has been successfully marked \n            as PRESENT on{{ $('Append row in sheet').item.json.Date }}\n            at {{ $('Append row in sheet').item.json.Time }}\n            Keep it up!\n\n            Regards,\n            Attendance System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        112
+      ],
+      "id": "05af7b58-ca9b-4a22-8b1a-f23d2a370b33",
+      "name": "Send a message1",
+      "webhookId": "5247f624-1491-4005-8fc4-20fb17d4fc26",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "your credentials id",
+          "name": "Add your Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "Your spreadsheet id here",
+          "mode": "list",
+          "cachedResultName": "Attendence register",
+          "cachedResultUrl": ""# "complete url by your own"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "attendence": "={{'present but late'}}",
+            "student name": "={{ $('Append row in sheet').item.json['student name'] }}",
+            "status": "={{ $('Append row in sheet').item.json.status }}",
+            "Date": "={{ $('Append row in sheet').item.json.Date }}",
+            "Time": "={{ $('Append row in sheet').item.json.Time }}",
+            "email": "={{ $('Append row in sheet').item.json.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student name",
+              "displayName": "student name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attendence",
+              "displayName": "attendence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        -176
+      ],
+      "id": "17384f7c-5cb5-4e49-8c8b-34d496be24bd",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuthApi": {
+          "id": "your credentials id",
+          "name": "your account name for google sheets credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "Your spreadsheet id here",
+          "mode": "list",
+          "cachedResultName": "Attendence register",
+          "cachedResultUrl": ""# "complete url by your own"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "attendence": "={{'present on time'}}",
+            "student name": "={{ $('Append row in sheet').item.json['student name'] }}",
+            "status": "={{ $('Append row in sheet').item.json.status }}",
+            "Date": "={{ $('Append row in sheet').item.json.Date }}",
+            "Time": "={{ $('Append row in sheet').item.json.Time }}",
+            "email": "={{ $('Append row in sheet').item.json.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student name",
+              "displayName": "student name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attendence",
+              "displayName": "attendence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        112
+      ],
+      "id": "b472e7a8-eb79-44c4-9187-00cc0745d41e",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuthApi": {
+          "id": "your credentials id",
+          "name": "your account name for google sheets credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "Your spreadsheet id here",
+          "mode": "list",
+          "cachedResultName": "Attendence register",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "student name": "={{ $json.body.student_name }}",
+            "status": "={{ $json.body.status }}",
+            "email": "={{ $json.body.parent_email }}",
+            "Date": "={{ $json.body.date }}",
+            "Time": "={{ $json.body.time }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student name",
+              "displayName": "student name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attendence",
+              "displayName": "attendence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        -16
+      ],
+      "id": "b37b868d-3af1-4525-86ac-ba1809f51473",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "your credentials id",
+          "name": "your account name for google sheets credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1oUVOfcn6aVV8mcvdn_UyNLvAFoFnYllYPyW1fJnvqao",
+          "mode": "list",
+          "cachedResultName": "Attendence register",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "" # "complete url by your own"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        0
+      ],
+      "id": "c1958c02-3c2c-4665-acda-16f9cb3c1ba8",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "your credentials id",
+          "name": "your account name for google sheets credentials"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "11d2545f-cf3e-4325-8e97-7796b895bb3b",
+  "meta":{"add your own metadata here": "value"},
+  "id": "RdsWWrH4ed3ZOAwM",
+  "tags": []
+}
