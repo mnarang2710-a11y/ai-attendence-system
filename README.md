@@ -15,10 +15,22 @@ An AI-powered attendance system using face recognition to automatically mark att
 - n8n (automation)
 - CSV (data storage)
 
+## 🔗 n8n Automation
+
+This project integrates with n8n for workflow automation:
+
+- Webhook receives attendance data
+- IF node checks status (Late/Present)
+- Email notifications are sent automatically
+-  E-mail reply sent automatically 
+
+### 📂 Workflow
+See: n8n-workflows:-attendance_alert.json
+
 ## 📂 Project Structure
 - recognizer.py → main face recognition logic
-- testing.py → testing module
 - known_faces/ → dataset (not required in production)
+- n8n-workflows:-attendance_alert.json
 
 ## ▶️ How to Run
 1. Install dependencies:
@@ -29,3 +41,4 @@ An AI-powered attendance system using face recognition to automatically mark att
 - Dashboard for analytics
 
 ---
+
